@@ -1,0 +1,15 @@
+# Binaries
+bin/
+*.exe
+
+# IDE
+.idea/
+.vscode/
+
+# Environment
+.env
+*.env
+
+# Go
+vendor/
+go.sum
