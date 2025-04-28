@@ -6,27 +6,28 @@ import (
 )
 
 type Config struct {
-	DBHOST     string
-	DBPORT     string
-	DBNAME     string
-	DBUSER     string
-	DBPASSWORD string
+	DBHost     string
+	DBPort     string
+	DBUser     string
+	DBPassword string
+	DBName     string
 	JWTSecret  string
-	JWTExpire  int
+	JWTTTL     int // в часах
 }
 
 func LoadConfig() *Config {
-	ttl, _ := strconv.Atoi(os.Getenv("JWWT_TTL"))
+	ttl, _ := strconv.Atoi(os.Getenv("JWT_TTL"))
 	if ttl == 0 {
 		ttl = 24
 	}
+
 	return &Config{
-		DBHOST:     os.Getenv("DBHOST"),
-		DBPORT:     os.Getenv("DBPORT"),
-		DBNAME:     os.Getenv("DBNAME"),
-		DBUSER:     os.Getenv("DBUSER"),
-		DBPASSWORD: os.Getenv("DBPASSWORD"),
+		DBHost:     os.Getenv("DB_HOST"),
+		DBPort:     os.Getenv("DB_PORT"),
+		DBUser:     os.Getenv("DB_USER"),
+		DBPassword: os.Getenv("DB_PASSWORD"),
+		DBName:     os.Getenv("DB_NAME"),
 		JWTSecret:  os.Getenv("JWT_SECRET"),
-		JWTExpire:  ttl,
+		JWTTTL:     ttl,
 	}
 }

@@ -14,7 +14,7 @@ func GenerateJWT(user *models.User) (string, error) {
 		"sub":   user.ID,
 		"email": user.Email,
 		"role":  user.Role,
-		"exp":   time.Now().Add(time.Hour * time.Duration(CFG.JWTExpire)).Unix(),
+		"exp":   time.Now().Add(time.Hour * time.Duration(CFG.JWTTTL)).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(CFG.JWTSecret))
