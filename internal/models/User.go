@@ -16,12 +16,13 @@ type User struct {
 	Role        types.Role        `gorm:"type:varchar(20);default:'user'"`
 }
 
-type RegisterRequest struct {
-	Email    types.Email `json:"email" binding:"required,email"`
-	Password string      `json:"password" binding:"required"`
+type EmailLoginRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
 }
 
-type LoginRequest struct {
-	Email    types.Email `json:"email" binding:"required,email"`
-	Password string      `json:"password" binding:"required"`
+type RegisterRequest struct {
+	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required,min=8"`
 }

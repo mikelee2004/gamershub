@@ -18,28 +18,39 @@ func NewAuthController(userRepo *repositories.UserRepository) *AuthController {
 	return &AuthController{userRepository: userRepo}
 }
 
-// login
+// Login method
 func (ac *AuthController) Login(c *gin.Context) {
-	var req models.LoginRequest
+	var req models.EmailLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	user, err := ac.userRepository.FindUserByEmail(req.Email)
+	email, err := types.NewEmail(req.Email)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email format"})
+		return
+	}
+
+	// Теперь передаем корректный Email
+	user, err := ac.userRepository.FindUserByEmail(email)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Остальная логика...
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
+
 	token, err := utils.GenerateJWT(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
@@ -50,6 +61,13 @@ func (ac *AuthController) Register(c *gin.Context) {
 		return
 	}
 
+	// creating validated email
+	email, err := types.NewEmail(req.Email)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email format"})
+		return
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not hash password"})
@@ -57,32 +75,29 @@ func (ac *AuthController) Register(c *gin.Context) {
 	}
 
 	user := &models.User{
-		Email:    req.Email,
+		Email:    email,
+		Username: req.Username,
 		Password: string(hashedPassword),
-		Role:     types.RoleUser, // default
+		Role:     types.RoleUser,
 	}
 
 	if err := ac.userRepository.CreateUser(user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "User already exists"})
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
 
 	token, err := utils.GenerateJWT(user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Could not generate access token",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
 		return
 	}
 
-	// Успешный ответ с токеном
 	c.JSON(http.StatusCreated, gin.H{
 		"status":  "success",
 		"message": "User registered successfully",
 		"data": gin.H{
 			"user_id": user.ID,
-			"email":   user.Email,
-			"role":    user.Role,
+			"email":   user.Email.String(),
 			"token":   token,
 		},
 	})

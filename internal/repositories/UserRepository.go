@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+	"fmt"
 	"gamershub/internal/models"
 	"gamershub/internal/types"
 	"gorm.io/gorm"
@@ -15,11 +16,25 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
-// create new user
 func (repo *UserRepository) CreateUser(user *models.User) error {
-	if err := repo.db.Create(user).Error; err != nil {
-		return errors.New("failed to create user")
+	var existing models.User
+	result := repo.db.Where("email = ? OR username = ?",
+		user.Email,
+		user.Username).First(&existing)
+
+	if result.Error == nil {
+		if existing.Email == user.Email {
+			return fmt.Errorf("email already exists")
+		}
+		if existing.Username == user.Username && user.Username != "" {
+			return fmt.Errorf("username already exists")
+		}
 	}
+
+	if err := repo.db.Create(user).Error; err != nil {
+		return fmt.Errorf("database error: %w", err)
+	}
+
 	return nil
 }
 
