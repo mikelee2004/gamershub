@@ -3,26 +3,25 @@ package api
 import (
 	"gamershub/internal/controllers"
 	"gamershub/internal/middleware"
-	"gamershub/internal/types"
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(authController *controllers.AuthController) *gin.Engine {
+func SetupRouter(authController *controllers.AuthController, friendshipCtrl *controllers.FriendshipController) *gin.Engine {
 	router := gin.Default()
-
 	api := router.Group("/api/v1")
 	{
-		authGroup := api.Group("/auth")
+		public := api.Group("/auth")
 		{
-			authGroup.POST("/register", authController.Register)
-			authGroup.POST("/login", authController.Login)
+			public.POST("/register", authController.Register)
+			public.POST("/login", authController.Login)
 		}
-
-		// Защищенные маршруты
-		protected := api.Group("/admin")
-		protected.Use(middleware.AuthMiddleware(types.RoleAdmin))
+		private := api.Group("/friendship")
+		private.Use(middleware.AuthRequired())
 		{
-			// todo: admin endpoints
+			private.POST("/add/:friend_id", friendshipCtrl.SendFriendRequest)
+			private.PUT("/accept/:friend_id/accept", friendshipCtrl.AcceptFriendRequest)
+			private.GET("/friendlist", friendshipCtrl.GetFriends)
+			private.GET("/requests", friendshipCtrl.GetPendingRequests)
 		}
 	}
 

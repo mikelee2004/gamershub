@@ -3,13 +3,14 @@ package models
 import (
 	"gamershub/internal/types"
 	"gorm.io/gorm"
+	"time"
 )
 
 type User struct {
 	gorm.Model
 	Id          uint              `gorm:"primaryKey" json:"id"`
 	Username    string            `gorm:"unique;not null" json:"username"`
-	Birthday    string            `gorm:"not null" json:"birthday"`
+	Birthday    time.Time         `gorm:"not null" json:"birthday"`
 	Email       types.Email       `gorm:"uniqueIndex;not null" json:"email"`
 	PhoneNumber types.PhoneNumber `gorm:"not null;" json:"phone_number"`
 	Password    string            `json:"password"`
@@ -22,7 +23,9 @@ type EmailLoginRequest struct {
 }
 
 type RegisterRequest struct {
-	Username string `json:"username" binding:"required"`
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required,min=8"`
+	Username    string `json:"username" binding:"required"`
+	Birthday    string `json:"birthday" binding:"required"`
+	Email       string `json:"email" binding:"required"`
+	Password    string `json:"password" binding:"required,min=8"`
+	PhoneNumber string `json:"phone_number" binding:"required"`
 }

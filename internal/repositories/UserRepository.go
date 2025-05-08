@@ -38,7 +38,6 @@ func (repo *UserRepository) CreateUser(user *models.User) error {
 	return nil
 }
 
-// find user by id
 func (repo *UserRepository) FindUserByID(id uint) (*models.User, error) {
 	var user models.User
 	if err := repo.db.First(&user, id).Error; err != nil {
@@ -47,7 +46,6 @@ func (repo *UserRepository) FindUserByID(id uint) (*models.User, error) {
 	return &user, nil
 }
 
-// find user by email
 func (repo *UserRepository) FindUserByEmail(email types.Email) (*models.User, error) {
 	var user models.User
 	if err := repo.db.Where("email = ?", email).First(&user).Error; err != nil {
@@ -56,7 +54,6 @@ func (repo *UserRepository) FindUserByEmail(email types.Email) (*models.User, er
 	return &user, nil
 }
 
-// find user by username
 func (repo *UserRepository) FindUserByUsername(username string) (*models.User, error) {
 	var user models.User
 	if err := repo.db.Where("username = ?", username).First(&user).Error; err != nil {
@@ -65,7 +62,6 @@ func (repo *UserRepository) FindUserByUsername(username string) (*models.User, e
 	return &user, nil
 }
 
-// update user
 func (repo *UserRepository) UpdateUser(user *models.User) error {
 	if err := repo.db.Save(user).Error; err != nil {
 		return errors.New("failed to update user")
@@ -73,7 +69,6 @@ func (repo *UserRepository) UpdateUser(user *models.User) error {
 	return nil
 }
 
-// delete user
 func (repo *UserRepository) DeleteUser(id uint) error {
 	if err := repo.db.Delete(&models.User{}, id).Error; err != nil {
 		return errors.New("не удалось удалить пользователя")

@@ -18,21 +18,23 @@ func main() {
 	}
 
 	//	auto-migration
-	if err := db.AutoMigrate(&models.User{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}, &models.Friendship{}); err != nil {
 		log.Fatal(err)
 	}
 
 	//	repo init
 	var userRepository = repositories.NewUserRepository(db)
+	var friendshipRepository = repositories.NewFriendshipRepository(db)
 
 	//	controllers init
 	authController := controllers.NewAuthController(userRepository)
+	friendshipController := controllers.NewFriendshipController(friendshipRepository, userRepository)
 
 	//	routes
-	router := api.SetupRouter(authController)
+	router := api.SetupRouter(authController, friendshipController)
 
 	//	launch server
-	if err := router.Run(":8080"); err != nil {
+	if err := router.Run(":5050"); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
 }

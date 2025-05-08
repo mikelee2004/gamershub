@@ -60,6 +60,11 @@ func (ac *AuthController) Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	birthday, err := types.ValidateBirthday(req.Birthday)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	// creating validated email
 	email, err := types.NewEmail(req.Email)
@@ -77,6 +82,7 @@ func (ac *AuthController) Register(c *gin.Context) {
 	user := &models.User{
 		Email:    email,
 		Username: req.Username,
+		Birthday: birthday,
 		Password: string(hashedPassword),
 		Role:     types.RoleUser,
 	}
