@@ -3,7 +3,6 @@ package middleware
 import (
 	"gamershub/pkg/utils"
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -39,10 +38,6 @@ func AuthRequired() gin.HandlerFunc {
 			})
 			return
 		}
-
-		// 4. Логируем для отладки (удалите в продакшене)
-		log.Printf("[DEBUG] Authenticated user: ID=%d, Role=%s", claims.UserId, claims.Role)
-		// 5. Добавляем данные в контекст
 		c.Set("userID", claims.UserId)
 		c.Set("userRole", claims.Role)
 

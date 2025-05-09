@@ -7,10 +7,14 @@ import (
 
 const (
 	MinAge     = 8
-	DateFormat = "2006-01-02 15:04:05"
+	DateFormat = "2006-01-02"
 )
 
 func ValidateBirthday(bdayString string) (time.Time, error) {
+	if bdayString == "" {
+		return time.Time{}, errors.New("birthday cannot be empty")
+	}
+
 	birthday, err := time.Parse(DateFormat, bdayString)
 	if err != nil {
 		return time.Time{}, errors.New("invalid date format")

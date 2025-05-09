@@ -80,11 +80,12 @@ func (ac *AuthController) Register(c *gin.Context) {
 	}
 
 	user := &models.User{
-		Email:    email,
-		Username: req.Username,
-		Birthday: birthday,
-		Password: string(hashedPassword),
-		Role:     types.RoleUser,
+		Email:       email,
+		Username:    req.Username,
+		Birthday:    birthday,
+		Password:    string(hashedPassword),
+		PhoneNumber: types.PhoneNumber(req.PhoneNumber),
+		Role:        types.RoleUser,
 	}
 
 	if err := ac.userRepository.CreateUser(user); err != nil {
@@ -102,9 +103,11 @@ func (ac *AuthController) Register(c *gin.Context) {
 		"status":  "success",
 		"message": "User registered successfully",
 		"data": gin.H{
-			"user_id": user.ID,
-			"email":   user.Email.String(),
-			"token":   token,
+			"user_id":  user.ID,
+			"email":    user.Email.String(),
+			"username": user.Username,
+			"birthday": user.Birthday,
+			"token":    token,
 		},
 	})
 }

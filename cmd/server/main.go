@@ -18,7 +18,10 @@ func main() {
 	}
 
 	//	auto-migration
-	if err := db.AutoMigrate(&models.User{}, &models.Friendship{}); err != nil {
+	if err := db.AutoMigrate(
+		&models.User{},
+		&models.Friendship{},
+	); err != nil {
 		log.Fatal(err)
 	}
 
