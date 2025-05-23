@@ -9,6 +9,4 @@ type Match struct {
 	AllyId uint      `json:"allyid" binding:"required"`
 	Result uint      `json:"result" binding:"required"`
 	Rating int       `json:"rating" binding:"required"`
-
-	// todo
 }

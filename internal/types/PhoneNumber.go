@@ -1,22 +1,30 @@
 package types
 
 import (
-	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 )
 
 type PhoneNumber string
 
-var phoneNumberRegex = regexp.MustCompile("^[0-9]{10}$")
+var phoneRegex = regexp.MustCompile(`^\+?[0-9]{10,15}$`) // Разрешает + и 10-15 цифр
 
-func NewPhoneNumber(phoneNumber string) (PhoneNumber, error) {
-	cleanNumber := strings.ReplaceAll(strings.ReplaceAll(phoneNumber, " ", ""), "-", "")
-	if !phoneNumberRegex.MatchString(cleanNumber) {
-		return "", errors.New("invalid phone number")
+func NewPhoneNumber(phone string) (PhoneNumber, error) {
+	// Удаляем ВСЕ нецифровые символы (кроме + в начале)
+	clean := strings.ReplaceAll(phone, " ", "")
+	clean = strings.ReplaceAll(clean, "-", "")
+	clean = strings.ReplaceAll(clean, "(", "")
+	clean = strings.ReplaceAll(clean, ")", "")
+
+	// Проверяем regex
+	if !phoneRegex.MatchString(clean) {
+		return "", fmt.Errorf("phone must be 10-15 digits, got: %v", len(clean))
 	}
-	return PhoneNumber(cleanNumber), nil
-}
-func (p PhoneNumber) String() string {
-	return string(p)
+
+	// Оставляем только цифры (или + цифры)
+	if strings.HasPrefix(clean, "+") {
+		return PhoneNumber(clean), nil
+	}
+	return PhoneNumber(clean), nil
 }

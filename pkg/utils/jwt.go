@@ -7,6 +7,7 @@ import (
 	"gamershub/internal/models"
 	"gamershub/internal/types"
 	"github.com/golang-jwt/jwt/v5"
+	"os"
 	"time"
 )
 
@@ -45,4 +46,9 @@ func ParseJWT(tokenString string) (*JWTClaims, error) {
 	}
 
 	return nil, errors.New("invalid token")
+}
+
+func GenerateRefreshToken() (string, error) {
+	token := jwt.New(jwt.SigningMethodHS256)
+	return token.SignedString([]byte(os.Getenv("REFRESH_TOKEN")))
 }

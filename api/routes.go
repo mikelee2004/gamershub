@@ -6,7 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(authController *controllers.AuthController, friendshipCtrl *controllers.FriendshipController) *gin.Engine {
+func SetupRouter(
+	authController *controllers.AuthController,
+	friendshipCtrl *controllers.FriendshipController,
+	userCtrl *controllers.UserController,
+	formCtrl *controllers.PlayerFormController,
+) *gin.Engine {
+
 	router := gin.Default()
 	api := router.Group("/api/v1")
 	{
@@ -15,15 +21,28 @@ func SetupRouter(authController *controllers.AuthController, friendshipCtrl *con
 			public.POST("/register", authController.Register)
 			public.POST("/login", authController.Login)
 		}
-		private := api.Group("/friendship")
-		private.Use(middleware.AuthRequired())
+		friendshipRoutes := api.Group("/friends")
+		friendshipRoutes.Use(middleware.AuthRequired())
 		{
-			private.POST("/add/:friend_id", friendshipCtrl.SendFriendRequest)
-			private.PUT("/accept/:friend_id/accept", friendshipCtrl.AcceptFriendRequest)
-			private.GET("/friendlist", friendshipCtrl.GetFriends)
-			private.GET("/requests", friendshipCtrl.GetPendingRequests)
+			friendshipRoutes.POST("/add/:friend_id", friendshipCtrl.SendFriendRequest)
+			friendshipRoutes.PUT("/accept/:friend_id/accept", friendshipCtrl.AcceptFriendRequest)
+			friendshipRoutes.GET("/friendlist", friendshipCtrl.GetFriends)
+			friendshipRoutes.GET("/requests", friendshipCtrl.GetPendingRequests)
+		}
+		userRoutes := api.Group("/user")
+		userRoutes.Use(middleware.AuthRequired())
+		{
+			userRoutes.GET("/profile", userCtrl.GetProfile)
+			userRoutes.POST("/logout", authController.Logout)
+			userRoutes.POST("/forgotpassword", userCtrl.ChangePassword)
+		}
+		formRoutes := api.Group("/form")
+		formRoutes.Use(middleware.AuthRequired())
+		{
+			formRoutes.POST("/newform", formCtrl.CreateForm)
+			formRoutes.GET("/myform", formCtrl.Get)
+			formRoutes.POST("/delete", formCtrl.Delete)
 		}
 	}
-
 	return router
 }

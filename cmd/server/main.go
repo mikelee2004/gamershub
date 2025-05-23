@@ -21,6 +21,7 @@ func main() {
 	if err := db.AutoMigrate(
 		&models.User{},
 		&models.Friendship{},
+		&models.PlayerForm{},
 	); err != nil {
 		log.Fatal(err)
 	}
@@ -28,16 +29,20 @@ func main() {
 	//	repo init
 	var userRepository = repositories.NewUserRepository(db)
 	var friendshipRepository = repositories.NewFriendshipRepository(db)
+	var formRepository = repositories.NewFormRepository(db)
 
 	//	controllers init
 	authController := controllers.NewAuthController(userRepository)
 	friendshipController := controllers.NewFriendshipController(friendshipRepository, userRepository)
+	userController := controllers.NewUserController(userRepository, db)
+	//matchmakingController := controllers.NewMatchmakingController(userRepository, db)
+	formController := controllers.NewPlayerFormController(formRepository)
 
 	//	routes
-	router := api.SetupRouter(authController, friendshipController)
+	router := api.SetupRouter(authController, friendshipController, userController, formController)
 
 	//	launch server
-	if err := router.Run(":5050"); err != nil {
+	if err := router.Run(":4040"); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
 }

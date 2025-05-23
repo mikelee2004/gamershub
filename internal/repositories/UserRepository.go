@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gamershub/internal/models"
 	"gamershub/internal/types"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -63,10 +64,7 @@ func (repo *UserRepository) FindUserByUsername(username string) (*models.User, e
 }
 
 func (repo *UserRepository) UpdateUser(user *models.User) error {
-	if err := repo.db.Save(user).Error; err != nil {
-		return errors.New("failed to update user")
-	}
-	return nil
+	return repo.db.Save(user).Error
 }
 
 func (repo *UserRepository) DeleteUser(id uint) error {
@@ -76,4 +74,23 @@ func (repo *UserRepository) DeleteUser(id uint) error {
 	return nil
 }
 
-// TODO: team-up methods
+func (r *UserRepository) FindByRefreshToken(token string) (*models.User, error) {
+	var user models.User
+	err := r.db.Where("refresh_token IS NOT NULL").First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.RefreshToken), []byte(token)); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *UserRepository) RevokeRefreshToken(userId uint) error {
+	return r.db.Model(&models.User{}).
+		Where("id = ?", userId).
+		Updates(map[string]interface{}{
+			"refresh_token": nil,
+			"token_expiry":  nil,
+		}).Error
+}
