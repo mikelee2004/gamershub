@@ -1,9 +1,12 @@
 package api
 
 import (
+	_ "gamershub/cmd/server/docs"
 	"gamershub/internal/controllers"
 	"gamershub/internal/middleware"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func SetupRouter(
@@ -11,15 +14,26 @@ func SetupRouter(
 	friendshipCtrl *controllers.FriendshipController,
 	userCtrl *controllers.UserController,
 	formCtrl *controllers.PlayerFormController,
+	matchmakingCtrl *controllers.MatchmakingController,
 ) *gin.Engine {
 
 	router := gin.Default()
+	// add swagger
+	url := ginSwagger.URL("/swagger/doc.json")
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 	api := router.Group("/api/v1")
 	{
 		public := api.Group("/auth")
 		{
 			public.POST("/register", authController.Register)
 			public.POST("/login", authController.Login)
+		}
+		userRoutes := api.Group("/user")
+		userRoutes.Use(middleware.AuthRequired())
+		{
+			userRoutes.GET("/profile", userCtrl.GetProfile)
+			userRoutes.POST("/logout", authController.Logout)
+			userRoutes.POST("/forgotpassword", userCtrl.ChangePassword)
 		}
 		friendshipRoutes := api.Group("/friends")
 		friendshipRoutes.Use(middleware.AuthRequired())
@@ -29,13 +43,7 @@ func SetupRouter(
 			friendshipRoutes.GET("/friendlist", friendshipCtrl.GetFriends)
 			friendshipRoutes.GET("/requests", friendshipCtrl.GetPendingRequests)
 		}
-		userRoutes := api.Group("/user")
-		userRoutes.Use(middleware.AuthRequired())
-		{
-			userRoutes.GET("/profile", userCtrl.GetProfile)
-			userRoutes.POST("/logout", authController.Logout)
-			userRoutes.POST("/forgotpassword", userCtrl.ChangePassword)
-		}
+
 		formRoutes := api.Group("/form")
 		formRoutes.Use(middleware.AuthRequired())
 		{
@@ -43,6 +51,14 @@ func SetupRouter(
 			formRoutes.GET("/myform", formCtrl.Get)
 			formRoutes.POST("/delete", formCtrl.Delete)
 		}
+		//matchmakingRoutes := api.Group("/matchmaking")
+		//matchmakingRoutes.Use(middleware.AuthRequired())
+		//{
+		//	matchmakingRoutes.GET("find", matchmakingCtrl.FindMatches)
+		//	matchmakingRoutes.POST("accept")
+		//
+		//}
+
 	}
 	return router
 }

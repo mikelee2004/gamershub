@@ -27,12 +27,18 @@ type EmailLoginRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
+// RegisterRequest содержит данные для регистрации пользователя
 type RegisterRequest struct {
-	Username    string `json:"username" binding:"required"`
-	Birthday    string `json:"birthday" binding:"required"`
-	Email       string `json:"email" binding:"required"`
-	Password    string `json:"password" binding:"required,min=8"`
-	PhoneNumber string `json:"phone_number" binding:"required"`
+	// Имя пользователя
+	Username string `json:"username" example:"john_doe" binding:"required"`
+	// Дата рождения в формате YYYY-MM-DD
+	Birthday string `json:"birthday" example:"1990-01-01" binding:"required"`
+	// Email пользователя (должен быть валидным email)
+	Email types.Email `json:"email" example:"user@example.com" binding:"required"`
+	// Пароль (минимум 6 символов)
+	Password string `json:"password" example:"securePassword123" binding:"required,min=6"`
+	// Номер телефона (должен быть валидным номером)
+	PhoneNumber types.PhoneNumber `json:"phone_number" example:"+1234567890" binding:"required"`
 }
 
 type ChangePasswordRequest struct {
@@ -43,4 +49,29 @@ type ChangePasswordRequest struct {
 type ChangePasswordResponse struct {
 	Success bool   `json:"success"`
 	Message string `json:"message"`
+}
+
+type RegisterSuccessResponse struct {
+	// Статус операции
+	Status string `json:"status" example:"success"`
+	// Сообщение
+	Message string `json:"message" example:"User registered successfully"`
+	// Данные пользователя
+	Data UserDataResponse `json:"data"`
+}
+
+// UserDataResponse содержит возвращаемые сервером данные регистрации
+type UserDataResponse struct {
+	UserID      uint              `json:"user_id"`
+	Email       types.Email       `json:"email"`
+	Username    string            `json:"username"`
+	Birthday    string            `json:"birthday"`
+	PhoneNumber types.PhoneNumber `json:"phoneNumber"`
+	Token       string            `json:"token"`
+}
+
+// ErrorResponse стандартный ответ с ошибкой
+type ErrorResponse struct {
+	// Сообщение об ошибке
+	Error string `json:"error" example:"Invalid email format"`
 }

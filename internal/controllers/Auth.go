@@ -20,62 +20,18 @@ func NewAuthController(userRepo *repositories.UserRepository) *AuthController {
 	return &AuthController{userRepository: userRepo}
 }
 
-func (ac *AuthController) Login(c *gin.Context) {
-	var req models.EmailLoginRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	email, err := types.NewEmail(req.Email)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email format"})
-		return
-	}
-
-	// Теперь передаем корректный Email
-	user, err := ac.userRepository.FindUserByEmail(email)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
-		return
-	}
-
-	accessToken, err := utils.GenerateJWT(user)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка генерации токена"})
-	}
-	refreshToken, err := utils.GenerateRefreshToken()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка генерации токена"})
-		return
-	}
-	user.RefreshToken = refreshToken
-	user.TokenExpiry = time.Now().Add(7 * 24 * time.Hour)
-
-	if err := ac.userRepository.UpdateUser(user); err != nil {
-		log.Printf("UpdateUser error: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка сохранения токена"})
-		return
-	}
-
-	updatedUser, err := ac.userRepository.FindUserByID(user.Id)
-	if err != nil {
-		log.Printf("Failed to verify saved token: %v", err)
-	} else {
-		log.Printf("Refresh token in DB after save: %s", updatedUser.RefreshToken)
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"access_token":  accessToken,
-		"refresh_token": refreshToken,
-	})
-}
-
+// Register godoc
+// @Summary Регистрация нового пользователя
+// @Description Регистрирует нового пользователя в системе
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param registerRequest body models.RegisterRequest true "Данные для регистрации"
+// @Success 201 {object} models.RegisterSuccessResponse "Успешная регистрация"
+// @Failure 400 {object} models.ErrorResponse "Невалидные данные"
+// @Failure 409 {object} models.ErrorResponse "Пользователь уже существует"
+// @Failure 500 {object} models.ErrorResponse "Внутренняя ошибка сервера"
+// @Router /api/v1/auth/register [post]
 func (ac *AuthController) Register(c *gin.Context) {
 	var req models.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -88,12 +44,12 @@ func (ac *AuthController) Register(c *gin.Context) {
 		return
 	}
 
-	phone, err := types.NewPhoneNumber(req.PhoneNumber)
+	phone, err := types.NewPhoneNumber(string(req.PhoneNumber))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	email, err := types.NewEmail(req.Email)
+	email, err := types.NewEmail(string(req.Email))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email format"})
 		return
@@ -124,19 +80,19 @@ func (ac *AuthController) Register(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
 		return
 	}
-
-	c.JSON(http.StatusCreated, gin.H{
-		"status":  "success",
-		"message": "User registered successfully",
-		"data": gin.H{
-			"user_id":     user.Id,
-			"email":       user.Email.String(),
-			"username":    user.Username,
-			"birthday":    user.Birthday,
-			"phoneNumber": user.PhoneNumber,
-			"token":       token,
+	res := models.RegisterSuccessResponse{
+		Status:  "success",
+		Message: "User registered successfully",
+		Data: models.UserDataResponse{
+			UserID:      user.Id,
+			Email:       user.Email,
+			Username:    user.Username,
+			Birthday:    user.Birthday.String(),
+			PhoneNumber: user.PhoneNumber,
+			Token:       token,
 		},
-	})
+	}
+	c.JSON(http.StatusCreated, res)
 }
 
 func (ac *AuthController) Logout(c *gin.Context) {
@@ -147,6 +103,65 @@ func (ac *AuthController) Logout(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{
 		"message": "successfully logged out",
+	})
+}
+
+func (ac *AuthController) Login(c *gin.Context) {
+	var req models.EmailLoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	//email validation
+	email, err := types.NewEmail(req.Email)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email format"})
+		return
+	}
+
+	// checking validated email
+	user, err := ac.userRepository.FindUserByEmail(email)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+
+	// generating tokens
+	accessToken, err := utils.GenerateJWT(user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка генерации токена"})
+	}
+
+	refreshToken, err := utils.GenerateRefreshToken()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка генерации токена"})
+		return
+	}
+
+	user.RefreshToken = refreshToken
+	user.TokenExpiry = time.Now().Add(7 * 24 * time.Hour)
+
+	if err := ac.userRepository.UpdateUser(user); err != nil {
+		log.Printf("UpdateUser error: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "ошибка сохранения токена"})
+		return
+	}
+
+	updatedUser, err := ac.userRepository.FindUserByID(user.Id)
+	if err != nil {
+		log.Printf("Failed to verify saved token: %v", err)
+	} else {
+		log.Printf("Refresh token in DB after save: %s", updatedUser.RefreshToken)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
 	})
 }
 
@@ -180,4 +195,32 @@ func (ac *AuthController) RefreshToken(c *gin.Context) {
 		"access_token":  newAccessToken,
 		"refresh_token": newRefreshToken,
 	})
+}
+
+type RegisterSuccessResponse struct {
+	// Статус операции
+	Status string `json:"status" example:"success"`
+	// Сообщение
+	Message string `json:"message" example:"User registered successfully"`
+	// Данные пользователя
+	Data struct {
+		// ID пользователя
+		UserID string `json:"user_id" example:"507f1f77bcf86cd799439011"`
+		// Email пользователя
+		Email string `json:"email" example:"user@example.com"`
+		// Имя пользователя
+		Username string `json:"username" example:"john_doe"`
+		// Дата рождения
+		Birthday string `json:"birthday" example:"1990-01-01"`
+		// Номер телефона
+		PhoneNumber string `json:"phoneNumber" example:"+1234567890"`
+		// JWT токен
+		Token string `json:"token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
+	} `json:"data"`
+}
+
+// ErrorResponse стандартный ответ с ошибкой
+type ErrorResponse struct {
+	// Сообщение об ошибке
+	Error string `json:"error" example:"Invalid email format"`
 }

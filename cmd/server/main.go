@@ -2,6 +2,7 @@ package main
 
 import (
 	"gamershub/api"
+	_ "gamershub/cmd/server/docs"
 	"gamershub/internal/controllers"
 	"gamershub/internal/models"
 	"gamershub/internal/repositories"
@@ -10,8 +11,13 @@ import (
 	"log"
 )
 
+// @title Gamershub
+// @version 1.0
+// @description Description of your API
+// @host localhost:8080
+// @BasePath /api/v1
 func main() {
-	dsn := "host=localhost user=postgres password=3791 dbname=gamershub port=5432"
+	dsn := "host=db user=postgres password=passpass dbname=gamershub port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
@@ -35,14 +41,12 @@ func main() {
 	authController := controllers.NewAuthController(userRepository)
 	friendshipController := controllers.NewFriendshipController(friendshipRepository, userRepository)
 	userController := controllers.NewUserController(userRepository, db)
-	//matchmakingController := controllers.NewMatchmakingController(userRepository, db)
+	matchmakingController := controllers.NewMatchmakingController(userRepository, db)
 	formController := controllers.NewPlayerFormController(formRepository)
 
 	//	routes
-	router := api.SetupRouter(authController, friendshipController, userController, formController)
+	router := api.SetupRouter(authController, friendshipController, userController, formController, matchmakingController)
 
 	//	launch server
-	if err := router.Run(":4040"); err != nil {
-		log.Fatal("Failed to start server:", err)
-	}
+	router.Run(":4040")
 }

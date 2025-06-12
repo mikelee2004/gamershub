@@ -17,6 +17,17 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
+// CreateUser godoc
+// @Summary      Создать нового пользователя
+// @Description  Добавить пользователя в систему
+// @Tags         User
+// @Accept       json
+// @Produce      json
+// @Param        user  body      UserRequest  true  "Данные пользователя"
+// @Success      201   {object}  UserResponse
+// @Failure      400   {object}  ErrorResponse
+// @Failure      500   {object}  ErrorResponse
+// @Router       /api/v1/auth/register [post]
 func (repo *UserRepository) CreateUser(user *models.User) error {
 	var existing models.User
 	result := repo.db.Where("email = ? OR username = ?",
