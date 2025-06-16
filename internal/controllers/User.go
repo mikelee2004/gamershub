@@ -19,6 +19,15 @@ func NewUserController(userRepo *repositories.UserRepository, db *gorm.DB) *User
 	return &UserController{userRepo: userRepo, db: db}
 }
 
+// GetProfile godoc
+// @Summary Get user profile
+// @Description Get authenticated user's profile information
+// @Tags User
+// @Produce json
+// @Success 200 {object} models.EmailLoginRequest
+// @Failure 401 {object} ErrorResponse "Unauthorized"
+// @Failure 404 {object} ErrorResponse "User not found"
+// @Router /user/profile [get]
 func (u *UserController) GetProfile(c *gin.Context) {
 	userId := c.GetUint("userID")
 	user, err := u.userRepo.FindUserByID(userId)
@@ -27,8 +36,7 @@ func (u *UserController) GetProfile(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"username": user.Username,
-		"email":    user.Email,
+		"User": user,
 	})
 }
 

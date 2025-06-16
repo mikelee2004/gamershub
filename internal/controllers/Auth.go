@@ -26,12 +26,13 @@ func NewAuthController(userRepo *repositories.UserRepository) *AuthController {
 // @Tags Auth
 // @Accept json
 // @Produce json
+// @security none
 // @Param registerRequest body models.RegisterRequest true "Данные для регистрации"
 // @Success 201 {object} models.RegisterSuccessResponse "Успешная регистрация"
 // @Failure 400 {object} models.ErrorResponse "Невалидные данные"
 // @Failure 409 {object} models.ErrorResponse "Пользователь уже существует"
 // @Failure 500 {object} models.ErrorResponse "Внутренняя ошибка сервера"
-// @Router /api/v1/auth/register [post]
+// @Router /auth/register [post]
 func (ac *AuthController) Register(c *gin.Context) {
 	var req models.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -95,6 +96,16 @@ func (ac *AuthController) Register(c *gin.Context) {
 	c.JSON(http.StatusCreated, res)
 }
 
+// Logout godoc
+// @Summary User logout
+// @Description Invalidates the user's refresh token and logs them out
+// @Tags User
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.LogoutSuccessResponse
+// @Failure 401 {object} ErrorResponse "Unauthorized"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /auth/logout [post]
 func (ac *AuthController) Logout(c *gin.Context) {
 	userId := c.GetUint("userID")
 	if err := ac.userRepository.RevokeRefreshToken(userId); err != nil {
@@ -106,6 +117,19 @@ func (ac *AuthController) Logout(c *gin.Context) {
 	})
 }
 
+// Login godoc
+// @Summary User authentication
+// @Description Authenticate user with email and password. Returns JWT tokens.
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @security none
+// @Param request body models.EmailLoginRequest true "Login credentials"
+// @Success 200 {object} models.LoginSuccessResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 401 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /auth/login [post]
 func (ac *AuthController) Login(c *gin.Context) {
 	var req models.EmailLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -219,8 +243,6 @@ type RegisterSuccessResponse struct {
 	} `json:"data"`
 }
 
-// ErrorResponse стандартный ответ с ошибкой
 type ErrorResponse struct {
-	// Сообщение об ошибке
 	Error string `json:"error" example:"Invalid email format"`
 }

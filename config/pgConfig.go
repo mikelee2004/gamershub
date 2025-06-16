@@ -1,6 +1,10 @@
 package config
 
 import (
+	"fmt"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"log"
 	"os"
 	"strconv"
 )
@@ -30,4 +34,14 @@ func LoadConfig() *Config {
 		JWTSecret:  os.Getenv("JWT_SECRET"),
 		JWTTTL:     ttl,
 	}
+}
+
+func ConnectToDatabase() *gorm.DB {
+	c := LoadConfig()
+	dsn := fmt.Sprintf(`host=%s user=%s password=%s dbname=%s port=%s sslmode=disable`, c.DBHost, c.DBUser, c.DBPassword, c.DBName, c.DBPort)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Failed connecting to database!", err)
+	}
+	return db
 }

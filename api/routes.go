@@ -1,12 +1,12 @@
 package api
 
 import (
-	_ "gamershub/cmd/server/docs"
+	_ "gamershub/docs"
 	"gamershub/internal/controllers"
 	"gamershub/internal/middleware"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	"time"
 )
 
 func SetupRouter(
@@ -14,13 +14,18 @@ func SetupRouter(
 	friendshipCtrl *controllers.FriendshipController,
 	userCtrl *controllers.UserController,
 	formCtrl *controllers.PlayerFormController,
-	matchmakingCtrl *controllers.MatchmakingController,
+	mmCtrl *controllers.MatchmakingController,
 ) *gin.Engine {
 
 	router := gin.Default()
-	// add swagger
-	url := ginSwagger.URL("/swagger/doc.json")
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"}, // Ваш Next.js адрес
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 	api := router.Group("/api/v1")
 	{
 		public := api.Group("/auth")
@@ -43,22 +48,21 @@ func SetupRouter(
 			friendshipRoutes.GET("/friendlist", friendshipCtrl.GetFriends)
 			friendshipRoutes.GET("/requests", friendshipCtrl.GetPendingRequests)
 		}
-
 		formRoutes := api.Group("/form")
 		formRoutes.Use(middleware.AuthRequired())
 		{
-			formRoutes.POST("/newform", formCtrl.CreateForm)
-			formRoutes.GET("/myform", formCtrl.Get)
-			formRoutes.POST("/delete", formCtrl.Delete)
+			formRoutes.POST("/create", formCtrl.CreateForm)
+			formRoutes.GET("/me", formCtrl.Get)
+			formRoutes.DELETE("/delete", formCtrl.Delete)
 		}
-		//matchmakingRoutes := api.Group("/matchmaking")
-		//matchmakingRoutes.Use(middleware.AuthRequired())
-		//{
-		//	matchmakingRoutes.GET("find", matchmakingCtrl.FindMatches)
-		//	matchmakingRoutes.POST("accept")
-		//
-		//}
-
+		mmRoutes := api.Group("/lft")
+		mmRoutes.Use(middleware.AuthRequired())
+		{
+			mmRoutes.GET("/find", mmCtrl.GetMatches)
+			mmRoutes.GET("/invites", mmCtrl.GetInvites)
+			mmRoutes.POST("/invite/", mmCtrl.SendInvite)
+			mmRoutes.POST("/respond", mmCtrl.RespondToInvitation)
+		}
 	}
 	return router
 }

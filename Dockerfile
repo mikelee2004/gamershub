@@ -1,23 +1,29 @@
-FROM golang:1.24 AS builder
+# Билд стадия
+FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
+# Копируем только модули сначала для кэширования
 COPY go.mod go.sum ./
-
 RUN go mod download
 
+# Копируем весь проект
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/server ./cmd/server/main.go
+# Собираем приложение
+RUN CGO_ENABLED=0 GOOS=linux go build -o /gamershub ./cmd/server/main.go
 
+# Финальный образ
 FROM alpine:latest
 
-COPY --from=builder /app/bin/server /app/server
-
-# Рабочая директория
 WORKDIR /app
 
-EXPOSE 4040
+# Копируем только бинарник
+COPY --from=builder /gamershub /app/
 
+# Создаем пустой .env если его нет (значения будут из docker-compose)
+RUN touch .env
 
-CMD ["/app/server"]
+EXPOSE 8080
+
+CMD ["./gamershub"]

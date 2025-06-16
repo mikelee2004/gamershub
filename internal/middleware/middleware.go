@@ -16,7 +16,6 @@ func AuthRequired() gin.HandlerFunc {
 			})
 			return
 		}
-
 		tokenParts := strings.Split(authHeader, " ")
 		if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -24,9 +23,7 @@ func AuthRequired() gin.HandlerFunc {
 			})
 			return
 		}
-
 		tokenString := tokenParts[1]
-
 		claims, err := utils.ParseJWT(tokenString)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -37,7 +34,6 @@ func AuthRequired() gin.HandlerFunc {
 		}
 		c.Set("userID", claims.UserId)
 		c.Set("userRole", claims.Role)
-
 		c.Next()
 	}
 }

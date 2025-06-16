@@ -15,6 +15,18 @@ func NewPlayerFormController(repo *repositories.FormRepository) *PlayerFormContr
 	return &PlayerFormController{repo: repo}
 }
 
+// CreateForm godoc
+// @Summary User authentication
+// @Description Authenticate user with email and password. Returns JWT tokens.
+// @Tags Player Forms
+// @Accept json
+// @Produce json
+// @Param request body models.PlayerForm true "Form Credentials"
+// @Success 200 {object} models.FormCreatedResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 401 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /form/create [post]
 func (c *PlayerFormController) CreateForm(ctx *gin.Context) {
 	var form models.PlayerForm
 	if err := ctx.ShouldBindJSON(&form); err != nil {
@@ -24,8 +36,6 @@ func (c *PlayerFormController) CreateForm(ctx *gin.Context) {
 		})
 		return
 	}
-
-	// Получаем userID из контекста (JWT middleware)
 	userID, exists := ctx.Get("userID")
 	if !exists {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
@@ -40,15 +50,23 @@ func (c *PlayerFormController) CreateForm(ctx *gin.Context) {
 		})
 		return
 	}
-
-	// Возвращаем созданную форму с десериализованными данными
 	ctx.JSON(http.StatusCreated, gin.H{
 		"status": "success",
 		"data":   form,
 	})
 }
 
-// Get возвращает анкету пользователя
+// Get godoc
+// @Summary Get player form
+// @Description Retrieves the current player's form with all preferences and statistics
+// @Tags Player Forms
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Success 200 {object} models.PlayerForm "Player form data"
+// @Failure 404 {object} models.ErrorResponse "Form not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /form/me [get]
 func (c *PlayerFormController) Get(ctx *gin.Context) {
 	userID := ctx.GetUint("userID")
 	form, err := c.repo.GetByUserID(userID)
@@ -60,14 +78,25 @@ func (c *PlayerFormController) Get(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, form)
 }
 
-// Delete удаляет анкету
+// Delete godoc
+// @Summary Delete player form
+// @Description Permanently deletes the player's form
+// @Tags Player Forms
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Success 200 {object} models.DeleteSuccessResponse "Success message"
+// @Failure 404 {object} models.ErrorResponse "Form not found"
+// @Failure 500 {object} models.ErrorResponse "Internal server error"
+// @Router /form/delete [delete]
 func (c *PlayerFormController) Delete(ctx *gin.Context) {
 	userID := ctx.GetUint("userID")
-
 	if err := c.repo.Delete(userID); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete form"})
 		return
 	}
-
-	ctx.JSON(http.StatusOK, gin.H{"status": "deleted"})
+	ctx.JSON(http.StatusOK, models.DeleteSuccessResponse{
+		Status:  "success",
+		Message: "Анкета удалена",
+	})
 }

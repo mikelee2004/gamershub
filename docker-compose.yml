@@ -1,28 +1,31 @@
+version: '3.8'
+
 services:
-  app:
+  backend:
     build: .
     ports:
-      - "4040:4040"
+      - "0.0.0.0:4040:4040"
     environment:
-      - DB_HOST=db
+      - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=postgres
-      - DB_PASSWORD=passpass
+      - DB_PASSWORD=3791
       - DB_NAME=gamershub
     depends_on:
-      - db
+      - postgres
+    restart: unless-stopped
 
-  db:
-      image: postgres:16.9-alpine
-      environment:
-        - POSTGRES_USER=postgres
-        - POSTGRES_PASSWORD=passpass
-        - POSTGRES_DB=gamershub
-      volumes:
-        - postgres_data:/var/lib/postgresql/data
-      ports:
-        - "5432:5432"
-      restart: unless-stopped
+  postgres:
+    image: postgres:17
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=3791
+      - POSTGRES_DB=gamershub
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
 
 volumes:
   postgres_data:
