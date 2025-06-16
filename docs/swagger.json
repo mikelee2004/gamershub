@@ -1,0 +1,1025 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for finding gaming partners and managing matches",
+        "title": "GamersHub Matchmaking API",
+        "contact": {
+            "name": "API Support",
+            "email": "strober2004@gmail.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:4040",
+    "basePath": "/api/v1",
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "security": [
+                    {
+                        "none": []
+                    }
+                ],
+                "description": "Authenticate user with email and password. Returns JWT tokens.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "User authentication",
+                "parameters": [
+                    {
+                        "description": "Login credentials",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.EmailLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.LoginSuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "description": "Invalidates the user's refresh token and logs them out",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "User logout",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.LogoutSuccessResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "security": [
+                    {
+                        "none": []
+                    }
+                ],
+                "description": "Регистрирует нового пользователя в системе",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Регистрация нового пользователя",
+                "parameters": [
+                    {
+                        "description": "Данные для регистрации",
+                        "name": "registerRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Успешная регистрация",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.RegisterSuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидные данные",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Пользователь уже существует",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/form/create": {
+            "post": {
+                "description": "Authenticate user with email and password. Returns JWT tokens.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Player Forms"
+                ],
+                "summary": "User authentication",
+                "parameters": [
+                    {
+                        "description": "Form Credentials",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.PlayerForm"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.FormCreatedResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/form/delete": {
+            "delete": {
+                "description": "Permanently deletes the player's form",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Player Forms"
+                ],
+                "summary": "Delete player form",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success message",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.DeleteSuccessResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Form not found",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/form/me": {
+            "get": {
+                "description": "Retrieves the current player's form with all preferences and statistics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Player Forms"
+                ],
+                "summary": "Get player form",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Player form data",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.PlayerForm"
+                        }
+                    },
+                    "404": {
+                        "description": "Form not found",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/lft/find": {
+            "get": {
+                "description": "Finds potential gaming partners based on player preferences and statistics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Matchmaking"
+                ],
+                "summary": "Find matching players",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "When no matches found",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.NoMatchesResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Player form not found",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/lft/invite": {
+            "post": {
+                "description": "Send a game invitation to another player",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Matchmaking"
+                ],
+                "summary": "Send game invitation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Invitation details",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.SendInviteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.InvitationSentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controllers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controllers.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controllers.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/lft/invites": {
+            "get": {
+                "description": "Get list of pending game invitations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Matchmaking"
+                ],
+                "summary": "Get pending invitations",
+                "responses": {
+                    "200": {
+                        "description": "List of invitations",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/gamershub_internal_models.InvitationResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/lft/respond": {
+            "post": {
+                "description": "Accept or decline game invitation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Matchmaking"
+                ],
+                "summary": "Respond to game invitation",
+                "parameters": [
+                    {
+                        "description": "Response data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.RespondInvitationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.InvitationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controllers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/profile": {
+            "get": {
+                "description": "Get authenticated user's profile information",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gamershub_internal_models.EmailLoginRequest"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controllers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controllers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "gamershub_internal_models.DeleteSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Resource deleted successfully"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "gamershub_internal_models.EmailLoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "mike@mail.ru"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "123123"
+                }
+            }
+        },
+        "gamershub_internal_models.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Bad request"
+                }
+            }
+        },
+        "gamershub_internal_models.FormCreatedResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/gamershub_internal_models.PlayerFormDetails"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Form created successfully"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "gamershub_internal_models.InvitationResponse": {
+            "type": "object",
+            "properties": {
+                "expires_at": {
+                    "type": "string"
+                },
+                "invitation_id": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "sender": {
+                    "$ref": "#/definitions/gamershub_internal_models.SenderInfo"
+                },
+                "sent_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamershub_internal_models.InvitationSentResponse": {
+            "type": "object",
+            "properties": {
+                "expires_at": {
+                    "type": "string",
+                    "example": "2023-05-17T14:23:01Z"
+                },
+                "invitation_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Invitation sent successfully"
+                },
+                "recipient_info": {
+                    "$ref": "#/definitions/gamershub_internal_models.RecipientShortInfo"
+                }
+            }
+        },
+        "gamershub_internal_models.LoginDataResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamershub_internal_models.LoginSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Данные пользователя",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/gamershub_internal_models.LoginDataResponse"
+                        }
+                    ]
+                },
+                "message": {
+                    "description": "Сообщение",
+                    "type": "string",
+                    "example": "User registered successfully"
+                },
+                "status": {
+                    "description": "Статус операции",
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "gamershub_internal_models.LogoutSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Successfully logged out"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "gamershub_internal_models.MatchResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer",
+                    "example": 5
+                },
+                "matches": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/gamershub_internal_models.MatchedPlayer"
+                    }
+                }
+            }
+        },
+        "gamershub_internal_models.MatchedPlayer": {
+            "type": "object",
+            "properties": {
+                "kd": {
+                    "type": "number",
+                    "example": 1.25
+                },
+                "match_score": {
+                    "type": "number",
+                    "example": 0.85
+                },
+                "rank": {
+                    "type": "integer",
+                    "example": 25
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 123
+                },
+                "valorant_id": {
+                    "type": "string",
+                    "example": "Player#EUW"
+                }
+            }
+        },
+        "gamershub_internal_models.NoMatchesResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "No matches found"
+                },
+                "your_criteria": {
+                    "$ref": "#/definitions/gamershub_internal_models.PlayerCriteria"
+                }
+            }
+        },
+        "gamershub_internal_models.PlayerCriteria": {
+            "type": "object",
+            "properties": {
+                "goal": {
+                    "type": "string",
+                    "example": "Competitive"
+                },
+                "languages": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "['English'",
+                        "'Russian']"
+                    ]
+                },
+                "rank": {
+                    "type": "integer",
+                    "example": 25
+                },
+                "region": {
+                    "type": "string",
+                    "example": "Europe"
+                }
+            }
+        },
+        "gamershub_internal_models.PlayerForm": {
+            "type": "object",
+            "properties": {
+                "communication_ways": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "goal": {
+                    "type": "string",
+                    "example": "ranked/pro/chill"
+                },
+                "region": {
+                    "$ref": "#/definitions/gamershub_internal_models.Region"
+                },
+                "statistics": {
+                    "$ref": "#/definitions/gamershub_internal_models.Statistics"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "valorant_id": {
+                    "type": "string",
+                    "example": "Testing#gogin"
+                }
+            }
+        },
+        "gamershub_internal_models.PlayerFormDetails": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2023-05-15T14:23:01Z"
+                },
+                "goal": {
+                    "type": "string",
+                    "example": "Improve skills"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 123
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 456
+                },
+                "valorant_id": {
+                    "type": "string",
+                    "example": "Player#1234"
+                }
+            }
+        },
+        "gamershub_internal_models.RecipientShortInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 123
+                },
+                "rank": {
+                    "type": "integer",
+                    "example": 25
+                },
+                "valorant_id": {
+                    "type": "string",
+                    "example": "Player#EUW"
+                }
+            }
+        },
+        "gamershub_internal_models.Region": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "en/ru"
+                    ]
+                },
+                "region": {
+                    "type": "string",
+                    "example": "EU/NA/ASIA/AU"
+                }
+            }
+        },
+        "gamershub_internal_models.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "birthday",
+                "email",
+                "password",
+                "phone_number",
+                "username"
+            ],
+            "properties": {
+                "birthday": {
+                    "type": "string",
+                    "example": "1990-01-01"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "user@test.com"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6,
+                    "example": "123123"
+                },
+                "phone_number": {
+                    "type": "string",
+                    "example": "+1234567890"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "test1"
+                }
+            }
+        },
+        "gamershub_internal_models.RegisterSuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "description": "Данные пользователя",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/gamershub_internal_models.UserDataResponse"
+                        }
+                    ]
+                },
+                "message": {
+                    "description": "Сообщение",
+                    "type": "string",
+                    "example": "User registered successfully"
+                },
+                "status": {
+                    "description": "Статус операции",
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "gamershub_internal_models.RespondInvitationRequest": {
+            "type": "object",
+            "required": [
+                "action",
+                "invitation_id"
+            ],
+            "properties": {
+                "action": {
+                    "description": "Действие: accept или decline",
+                    "type": "string",
+                    "enum": [
+                        "accept",
+                        "decline"
+                    ],
+                    "example": "accept"
+                },
+                "invitation_id": {
+                    "description": "ID приглашения",
+                    "type": "integer",
+                    "example": 123
+                },
+                "reason": {
+                    "description": "Причина отказа (опционально)",
+                    "type": "string",
+                    "example": "Not enough time"
+                }
+            }
+        },
+        "gamershub_internal_models.SendInviteRequest": {
+            "type": "object",
+            "required": [
+                "recipient_id"
+            ],
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "example": "Let's play together!"
+                },
+                "recipient_id": {
+                    "type": "integer",
+                    "example": 123
+                }
+            }
+        },
+        "gamershub_internal_models.SenderInfo": {
+            "type": "object",
+            "properties": {
+                "rank": {
+                    "type": "integer"
+                },
+                "rank_name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "valorant_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "gamershub_internal_models.Statistics": {
+            "type": "object",
+            "properties": {
+                "hs_percent": {
+                    "type": "number"
+                },
+                "kd": {
+                    "type": "number"
+                },
+                "peak_rank": {
+                    "type": "integer"
+                },
+                "rank": {
+                    "type": "integer"
+                },
+                "win_rate": {
+                    "type": "number"
+                }
+            }
+        },
+        "gamershub_internal_models.UserDataResponse": {
+            "type": "object",
+            "properties": {
+                "birthday": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_controllers.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Invalid email format"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

@@ -1,0 +1,689 @@
+basePath: /api/v1
+definitions:
+  gamershub_internal_models.DeleteSuccessResponse:
+    properties:
+      message:
+        example: Resource deleted successfully
+        type: string
+      status:
+        example: success
+        type: string
+    type: object
+  gamershub_internal_models.EmailLoginRequest:
+    properties:
+      email:
+        example: mike@mail.ru
+        type: string
+      password:
+        example: "123123"
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  gamershub_internal_models.ErrorResponse:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: Bad request
+        type: string
+    type: object
+  gamershub_internal_models.FormCreatedResponse:
+    properties:
+      data:
+        $ref: '#/definitions/gamershub_internal_models.PlayerFormDetails'
+      message:
+        example: Form created successfully
+        type: string
+      status:
+        example: success
+        type: string
+    type: object
+  gamershub_internal_models.InvitationResponse:
+    properties:
+      expires_at:
+        type: string
+      invitation_id:
+        type: integer
+      message:
+        type: string
+      sender:
+        $ref: '#/definitions/gamershub_internal_models.SenderInfo'
+      sent_at:
+        type: string
+    type: object
+  gamershub_internal_models.InvitationSentResponse:
+    properties:
+      expires_at:
+        example: "2023-05-17T14:23:01Z"
+        type: string
+      invitation_id:
+        example: 1
+        type: integer
+      message:
+        example: Invitation sent successfully
+        type: string
+      recipient_info:
+        $ref: '#/definitions/gamershub_internal_models.RecipientShortInfo'
+    type: object
+  gamershub_internal_models.LoginDataResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  gamershub_internal_models.LoginSuccessResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/gamershub_internal_models.LoginDataResponse'
+        description: Данные пользователя
+      message:
+        description: Сообщение
+        example: User registered successfully
+        type: string
+      status:
+        description: Статус операции
+        example: success
+        type: string
+    type: object
+  gamershub_internal_models.LogoutSuccessResponse:
+    properties:
+      message:
+        example: Successfully logged out
+        type: string
+      status:
+        example: success
+        type: string
+    type: object
+  gamershub_internal_models.MatchResponse:
+    properties:
+      count:
+        example: 5
+        type: integer
+      matches:
+        items:
+          $ref: '#/definitions/gamershub_internal_models.MatchedPlayer'
+        type: array
+    type: object
+  gamershub_internal_models.MatchedPlayer:
+    properties:
+      kd:
+        example: 1.25
+        type: number
+      match_score:
+        example: 0.85
+        type: number
+      rank:
+        example: 25
+        type: integer
+      user_id:
+        example: 123
+        type: integer
+      valorant_id:
+        example: Player#EUW
+        type: string
+    type: object
+  gamershub_internal_models.NoMatchesResponse:
+    properties:
+      message:
+        example: No matches found
+        type: string
+      your_criteria:
+        $ref: '#/definitions/gamershub_internal_models.PlayerCriteria'
+    type: object
+  gamershub_internal_models.PlayerCriteria:
+    properties:
+      goal:
+        example: Competitive
+        type: string
+      languages:
+        example:
+        - '[''English'''
+        - '''Russian'']'
+        items:
+          type: string
+        type: array
+      rank:
+        example: 25
+        type: integer
+      region:
+        example: Europe
+        type: string
+    type: object
+  gamershub_internal_models.PlayerForm:
+    properties:
+      communication_ways:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      goal:
+        example: ranked/pro/chill
+        type: string
+      region:
+        $ref: '#/definitions/gamershub_internal_models.Region'
+      statistics:
+        $ref: '#/definitions/gamershub_internal_models.Statistics'
+      user_id:
+        type: integer
+      valorant_id:
+        example: Testing#gogin
+        type: string
+    type: object
+  gamershub_internal_models.PlayerFormDetails:
+    properties:
+      created_at:
+        example: "2023-05-15T14:23:01Z"
+        type: string
+      goal:
+        example: Improve skills
+        type: string
+      id:
+        example: 123
+        type: integer
+      user_id:
+        example: 456
+        type: integer
+      valorant_id:
+        example: Player#1234
+        type: string
+    type: object
+  gamershub_internal_models.RecipientShortInfo:
+    properties:
+      id:
+        example: 123
+        type: integer
+      rank:
+        example: 25
+        type: integer
+      valorant_id:
+        example: Player#EUW
+        type: string
+    type: object
+  gamershub_internal_models.Region:
+    properties:
+      language:
+        example:
+        - en/ru
+        items:
+          type: string
+        type: array
+      region:
+        example: EU/NA/ASIA/AU
+        type: string
+    type: object
+  gamershub_internal_models.RegisterRequest:
+    properties:
+      birthday:
+        example: "1990-01-01"
+        type: string
+      email:
+        example: user@test.com
+        type: string
+      password:
+        example: "123123"
+        minLength: 6
+        type: string
+      phone_number:
+        example: "+1234567890"
+        type: string
+      username:
+        example: test1
+        type: string
+    required:
+    - birthday
+    - email
+    - password
+    - phone_number
+    - username
+    type: object
+  gamershub_internal_models.RegisterSuccessResponse:
+    properties:
+      data:
+        allOf:
+        - $ref: '#/definitions/gamershub_internal_models.UserDataResponse'
+        description: Данные пользователя
+      message:
+        description: Сообщение
+        example: User registered successfully
+        type: string
+      status:
+        description: Статус операции
+        example: success
+        type: string
+    type: object
+  gamershub_internal_models.RespondInvitationRequest:
+    properties:
+      action:
+        description: 'Действие: accept или decline'
+        enum:
+        - accept
+        - decline
+        example: accept
+        type: string
+      invitation_id:
+        description: ID приглашения
+        example: 123
+        type: integer
+      reason:
+        description: Причина отказа (опционально)
+        example: Not enough time
+        type: string
+    required:
+    - action
+    - invitation_id
+    type: object
+  gamershub_internal_models.SendInviteRequest:
+    properties:
+      message:
+        example: Let's play together!
+        maxLength: 500
+        type: string
+      recipient_id:
+        example: 123
+        type: integer
+    required:
+    - recipient_id
+    type: object
+  gamershub_internal_models.SenderInfo:
+    properties:
+      rank:
+        type: integer
+      rank_name:
+        type: string
+      user_id:
+        type: integer
+      valorant_id:
+        type: string
+    type: object
+  gamershub_internal_models.Statistics:
+    properties:
+      hs_percent:
+        type: number
+      kd:
+        type: number
+      peak_rank:
+        type: integer
+      rank:
+        type: integer
+      win_rate:
+        type: number
+    type: object
+  gamershub_internal_models.UserDataResponse:
+    properties:
+      birthday:
+        type: string
+      email:
+        type: string
+      phoneNumber:
+        type: string
+      token:
+        type: string
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
+  internal_controllers.ErrorResponse:
+    properties:
+      error:
+        example: Invalid email format
+        type: string
+    type: object
+host: localhost:4040
+info:
+  contact:
+    email: strober2004@gmail.com
+    name: API Support
+  description: API for finding gaming partners and managing matches
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: GamersHub Matchmaking API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email and password. Returns JWT tokens.
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/gamershub_internal_models.EmailLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.LoginSuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+      security:
+      - none: []
+      summary: User authentication
+      tags:
+      - Auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Invalidates the user's refresh token and logs them out
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.LogoutSuccessResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_controllers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/internal_controllers.ErrorResponse'
+      summary: User logout
+      tags:
+      - User
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрирует нового пользователя в системе
+      parameters:
+      - description: Данные для регистрации
+        in: body
+        name: registerRequest
+        required: true
+        schema:
+          $ref: '#/definitions/gamershub_internal_models.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешная регистрация
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.RegisterSuccessResponse'
+        "400":
+          description: Невалидные данные
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+        "409":
+          description: Пользователь уже существует
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+      security:
+      - none: []
+      summary: Регистрация нового пользователя
+      tags:
+      - Auth
+  /form/create:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email and password. Returns JWT tokens.
+      parameters:
+      - description: Form Credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/gamershub_internal_models.PlayerForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.FormCreatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+      summary: User authentication
+      tags:
+      - Player Forms
+  /form/delete:
+    delete:
+      consumes:
+      - application/json
+      description: Permanently deletes the player's form
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.DeleteSuccessResponse'
+        "404":
+          description: Form not found
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+      summary: Delete player form
+      tags:
+      - Player Forms
+  /form/me:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves the current player's form with all preferences and statistics
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Player form data
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.PlayerForm'
+        "404":
+          description: Form not found
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+      summary: Get player form
+      tags:
+      - Player Forms
+  /lft/find:
+    get:
+      consumes:
+      - application/json
+      description: Finds potential gaming partners based on player preferences and
+        statistics
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: When no matches found
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.NoMatchesResponse'
+        "404":
+          description: Player form not found
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.ErrorResponse'
+      summary: Find matching players
+      tags:
+      - Matchmaking
+  /lft/invite:
+    post:
+      consumes:
+      - application/json
+      description: Send a game invitation to another player
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Invitation details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/gamershub_internal_models.SendInviteRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.InvitationSentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_controllers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_controllers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/internal_controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_controllers.ErrorResponse'
+      summary: Send game invitation
+      tags:
+      - Matchmaking
+  /lft/invites:
+    get:
+      consumes:
+      - application/json
+      description: Get list of pending game invitations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of invitations
+          schema:
+            items:
+              $ref: '#/definitions/gamershub_internal_models.InvitationResponse'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get pending invitations
+      tags:
+      - Matchmaking
+  /lft/respond:
+    post:
+      consumes:
+      - application/json
+      description: Accept or decline game invitation
+      parameters:
+      - description: Response data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/gamershub_internal_models.RespondInvitationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.InvitationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_controllers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_controllers.ErrorResponse'
+      summary: Respond to game invitation
+      tags:
+      - Matchmaking
+  /user/profile:
+    get:
+      description: Get authenticated user's profile information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gamershub_internal_models.EmailLoginRequest'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_controllers.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/internal_controllers.ErrorResponse'
+      summary: Get user profile
+      tags:
+      - User
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
